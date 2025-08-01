@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STEM Genie - Cộng đồng</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 font-sans">
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="flex justify-between items-center bg-white px-8 py-4 shadow">
+      <nav class="flex space-x-6">
+        <a href="/trang-chu.html" class="text-gray-500 hover:text-blue-600">Trang chủ</a>
+        <span class="font-bold border-b-4 border-blue-600 pb-1 text-blue-600">Cộng đồng</span>
+      </nav>
+      <div class="text-right">
+        <div class="font-semibold">Nguyễn Văn ABC</div>
+        <a href="/ho-so.html" class="text-sm text-blue-600 hover:underline">Hồ sơ cá nhân</a>
+      </div>
+    </header>
+
+    <!-- Bộ lọc -->
+    <section class="flex flex-wrap gap-2 px-6 py-4 bg-white border-b border-gray-200">
+      <button class="px-4 py-1 bg-gray-100 border border-gray-300 rounded-full text-sm hover:bg-blue-100">🔤 Khối lớp</button>
+      <button class="px-4 py-1 bg-gray-100 border border-gray-300 rounded-full text-sm hover:bg-blue-100">📘 Môn học</button>
+      <button class="px-4 py-1 bg-gray-100 border border-gray-300 rounded-full text-sm hover:bg-blue-100">📚 Bài học</button>
+      <button class="px-4 py-1 bg-gray-100 border border-gray-300 rounded-full text-sm hover:bg-blue-100">🎨 Định dạng</button>
+    </section>
+
+    <!-- Tài liệu tham khảo -->
+    <section class="px-6 py-8">
+      <h2 class="text-2xl font-bold text-blue-800 mb-6">Tài liệu tham khảo</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+        <!-- Lặp card này cho từng tài liệu -->
+        <article class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden">
+          <img src="https://i.imgur.com/xu1uhTe.jpg" alt="Pha trộn màu sắc" class="w-full h-48 object-cover">
+          <div class="p-4">
+            <h3 class="font-bold text-blue-700 text-lg mb-1">Pha trộn màu sắc</h3>
+            <p class="text-sm text-gray-600">Tác giả: Nguyễn Văn E</p>
+            <p class="text-sm mt-1 text-gray-600">Đối tượng: Mầm non</p>
+            <p class="text-sm text-gray-600">Đề tài: Khoa học</p>
+          </div>
+        </article>
+
+        <article class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden">
+          <img src="https://i.imgur.com/3vm3BoE.jpg" alt="Chìm hay nổi" class="w-full h-48 object-cover">
+          <div class="p-4">
+            <h3 class="font-bold text-blue-700 text-lg mb-1">Chìm hay nổi</h3>
+            <p class="text-sm text-gray-600">Tác giả: Nguyễn Văn G</p>
+            <p class="text-sm mt-1 text-gray-600">Đối tượng: Mầm non</p>
+            <p class="text-sm text-gray-600">Đề tài: Hóa học</p>
+          </div>
+        </article>
+
+        <article class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden">
+          <img src="https://i.imgur.com/OpiLFTj.jpg" alt="Dung nham" class="w-full h-48 object-cover">
+          <div class="p-4">
+            <h3 class="font-bold text-blue-700 text-lg mb-1">Dung nham</h3>
+            <p class="text-sm text-gray-600">Tác giả: Nguyễn Văn B</p>
+            <p class="text-sm mt-1 text-gray-600">Đối tượng: Mầm non</p>
+            <p class="text-sm text-gray-600">Đề tài: Hóa học</p>
+          </div>
+        </article>
+
+        <article class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow overflow-hidden">
+          <img src="https://i.imgur.com/0PqUdqA.jpg" alt="Dựng thuyền táo" class="w-full h-48 object-cover">
+          <div class="p-4">
+            <h3 class="font-bold text-blue-700 text-lg mb-1">Dựng thuyền táo</h3>
+            <p class="text-sm text-gray-600">Tác giả: Nguyễn Văn A</p>
+            <p class="text-sm mt-1 text-gray-600">Đối tượng: Mầm non</p>
+            <p class="text-sm text-gray-600">Đề tài: Vật lý</p>
+          </div>
+        </article>
+
+        <!-- Thêm các card khác nếu cần -->
+
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>

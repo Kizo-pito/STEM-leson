@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>STEM Genie</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <div class="flex min-h-screen">
+  <!-- Sidebar trái -->
+  <aside class="w-64 bg-gradient-to-b from-blue-400 to-blue-600 text-white p-4">
+    <div class="text-2xl font-bold mb-6">STEM Genie</div>
+    <nav class="space-y-4">
+      <a href="/trang-chu.html" class="flex items-center space-x-3 hover:bg-blue-700 p-2 rounded-lg"><span>🏠</span><span>Trang chủ</span></a>
+      <a href="/cong-dong.html" class="flex items-center space-x-3 hover:bg-blue-700 p-2 rounded-lg"><span>👥</span><span>Cộng đồng</span></a>
+      <a href="#" class="flex items-center space-x-3 hover:bg-blue-700 p-2 rounded-lg"><span>📚</span><span>Thư viện</span></a>
+      <a href="#" class="flex items-center space-x-3 hover:bg-blue-700 p-2 rounded-lg"><span>🔔</span><span>Thông báo</span></a>
+    </nav>
+    <div class="mt-8 text-sm text-white/70">© 2025 STEM Genie</div>
+  </aside>
+
+  <!-- Nội dung chính + Sidebar phải -->
+  <div class="flex flex-1">
+    <!-- Main content -->
+    <main class="flex-1 p-6">
+      <!-- Header -->
+      <div class="flex justify-between items-center bg-white px-8 py-4 shadow mb-6">
+        <div class="space-x-6">
+          <a href="trang-chu.html" class="font-bold border-b-2 border-blue-600 pb-1">Trang chủ</a>
+          <a href="cong-dong.html" class="text-gray-600">Cộng đồng</a>
+        </div>
+        <div class="text-right">
+          <div class="font-semibold">Nguyễn Mạnh Quân</div>
+           <a href="ho-so.html" class="text-sm text-gray-500">Hồ sơ cá nhân</a>
+        </div>
+      </div>
+
+      <!-- Slide Intro -->
+      <section class="bg-gradient-to-r from-blue-300 to-blue-500 text-white rounded-2xl p-6 mb-6">
+  <h1 class="text-3xl font-bold mb-2">STEM Genie</h1>
+  <p class="mb-4">Trợ lý AI giúp giáo viên tạo giáo án & slide STEM siêu tốc, đồng thời kết nối bạn với cộng đồng chia sẻ tài nguyên.</p>
+  <div class="flex justify-center">
+    <button
+      onclick="window.location.href='/lua-chon.html'"
+      class="bg-white text-blue-600 rounded-xl px-6 py-4 text-center font-medium shadow-md cursor-pointer hover:bg-blue-100 transition"
+    >
+      ➤ Tạo slides và bài giảng nhanh chóng cùng Genie!
+    </button>
+  </div>
+  </section>
+
+      <!-- Tài liệu tham khảo -->
+      <div class="col-span-2">
+          <h2 class="text-lg font-bold mb-3">Tài liệu tham khảo</h2>
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="bg-white p-4 rounded-xl shadow">
+              <h4 class="font-semibold text-blue-700">PHA TRỘN MÀU SẮC</h4>
+              <p class="text-sm text-gray-500">Dành cho: Mầm non</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow">
+              <h4 class="font-semibold text-blue-700">CHÌM HAY NỔI</h4>
+              <p class="text-sm text-gray-500">Dành cho: Mầm non</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow">
+              <h4 class="font-semibold text-blue-700">DUNG NHAM</h4>
+              <p class="text-sm text-gray-500">Dành cho: Mầm non</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow">
+              <h4 class="font-semibold text-blue-700">DỰNG THUYỀN TẠO</h4>
+              <p class="text-sm text-gray-500">Dành cho: Mầm non</p>
+            </div>
+    </main>
+
+    <!-- Sidebar phải -->
+    <aside class="w-72 flex flex-col p-4 space-y-4">
+      <!-- Phần trên: Bài viết nổi bật -->
+      <div class="flex-1 bg-white rounded-xl shadow p-4 mb-4">
+        <h2 class="text-lg font-bold mb-3">Bài viết nổi bật</h2>
+        <div class="space-y-4">
+           <div class="bg-white p-4 rounded-xl shadow hover:shadow-lg">
+              <h3 class="font-semibold">Giáo án: Mô hình cây</h3>
+              <p class="text-sm text-gray-600">👁 18.3k ❤️ 1.5k 💬 500</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow hover:shadow-lg">
+              <h3 class="font-semibold">Bài giảng: Thấu kính hội tụ</h3>
+              <p class="text-sm text-gray-600">👁 12.4k ❤️ 1.2k 💬 340</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow hover:shadow-lg">
+              <h3 class="font-semibold">Slide: AI nhanh - ai đúng</h3>
+              <p class="text-sm text-gray-600">👁 9.1k ❤️ 911 💬 100</p>
+            </div>
+        </div>
+      </div>
+      <!-- Phần dưới: Quảng cáo -->
+      <div class="flex-1 bg-gray-200 rounded-xl shadow p-4 flex items-center justify-center">
+        <!-- Để trống để chèn quảng cáo -->
+        <span class="text-gray-400">Quảng cáo</span>
+      </div>
+    </aside>
+  </div>
+</div>
+    </main>
+  </div>
+
+</body>
+</html>

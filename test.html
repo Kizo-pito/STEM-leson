@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>STEM Genie Chat</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    #chatOutput {
+      height: 500px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 10px;
+      background-color: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+    }
+    .user-message {
+      align-self: flex-end;
+      background-color: #dbeafe;
+      padding: 8px 12px;
+      border-radius: 15px 15px 0 15px;
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    .bot-message {
+      align-self: flex-start;
+      background-color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 15px 15px 15px 0;
+      max-width: 80%;
+      word-wrap: break-word;
+      border: 1px solid #e5e7eb;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-20 bg-gradient-to-b from-blue-400 to-blue-600 text-white flex flex-col items-center py-6 space-y-6">
+      <div class="text-xl font-bold">🧞‍♂️</div>
+      <a href="/trang-chu.html" class="text-2xl hover:text-white">🏠</a>
+      <a href="/cong-dong.html" class="text-2xl hover:text-white">👥</a>
+      <a href="#" class="text-2xl hover:text-white">📚</a>
+      <a href="#" class="text-2xl hover:text-white">🔔</a>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <!-- Header -->
+      <div class="flex justify-between items-center bg-white px-8 py-4 shadow">
+        <div class="flex space-x-6">
+          <a href="/trang-chu.html" class="font-bold border-b-4 border-blue-600 pb-1">Trang chủ</a>
+          <button class="text-gray-500">Cộng đồng</button>
+        </div>
+        <div class="text-right">
+          <div class="font-semibold">Nguyễn Mạnh Quân</div>
+          <a href="/ho-so.html" class="text-sm text-blue-600 hover:underline">Hồ sơ cá nhân</a>
+        </div>
+      </div>
+
+      <!-- Nội dung -->
+      <div class="flex flex-1 p-6 bg-blue-100 rounded-lg m-4">
+        <!-- Bộ lọc -->
+        <div class="w-64 bg-white rounded-xl p-6 shadow-md mr-6">
+          <h2 class="text-xl font-bold text-blue-700 mb-4">Bộ lọc</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-gray-700 mb-1">Khối lớp</label>
+              <select class="w-full border border-gray-300 rounded-md px-3 py-2">
+                <option>Chọn khối lớp</option>
+                <option>Lớp 1</option>
+                <option>Lớp 2</option>
+                <option>Lớp 3</option>
+                <option>Lớp 4</option>
+                <option>Lớp 5</option>
+                <option>Lớp 6</option>
+                <option>Lớp 7</option>
+                <option>Lớp 8</option>
+                <option>Lớp 9</option>
+                <option>Lớp 10</option>
+                <option>Lớp 11</option>
+                <option>Lớp 12</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-gray-700 mb-1">Môn học</label>
+              <select class="w-full border border-gray-300 rounded-md px-3 py-2">
+                <option>Chọn môn học</option>
+                <option>Toán</option>
+                <option>Lý</option>
+                <option>Hóa</option>
+                <option>Văn</option>
+                <option>Sử</option>
+                <option>Địa</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-gray-700 mb-1">Bài học</label>
+              <select class="w-full border border-gray-300 rounded-md px-3 py-2">
+                <option>Chọn bài học</option>
+                <option>Bài 1</option>
+                <option>Bài 2</option>
+                <option>Bài 3</option>
+                <option>Bài 4</option>
+                <option>Bài 5</option>
+              </select>
+            </div>
+            <div class="flex justify-center pt-2">
+              <button class="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full text-white text-lg shadow-md">⬇</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="flex-1 bg-white rounded-xl shadow-md p-6 flex flex-col">
+          <h1 class="text-2xl font-bold text-center mb-4 text-blue-700">STEM Genie Chatbot</h1>
+
+          <div id="chatOutput" class="flex-1 mb-4"></div>
+
+          <div class="relative">
+            <div class="flex items-center border border-blue-400 rounded-xl px-4 py-2 shadow-md">
+              <span class="mr-2 text-blue-600">✦</span>
+              <input 
+                id="userInput" 
+                type="text" 
+                placeholder="Nhập yêu cầu tại đây..." 
+                class="flex-1 border-none outline-none text-sm text-blue-800"
+                onkeyup="if(event.keyCode === 13) sendMessage()"
+              >
+              <button onclick="sendMessage()" class="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2">➤</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const chatOutput = document.getElementById("chatOutput");
+      const userText = input.value.trim();
+      if (!userText) return;
+
+      const userDiv = document.createElement("div");
+      userDiv.className = "user-message";
+      userDiv.innerText = "🧑 Bạn: " + userText;
+      chatOutput.appendChild(userDiv);
+      chatOutput.scrollTop = chatOutput.scrollHeight;
+
+      input.value = "Đang xử lý...";
+      input.disabled = true;
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userText })
+        });
+        const data = await res.json();
+
+        const botDiv = document.createElement("div");
+        botDiv.className = "bot-message";
+        botDiv.innerText = "🤖 Genie: " + data.reply;
+        chatOutput.appendChild(botDiv);
+        chatOutput.scrollTop = chatOutput.scrollHeight;
+      } catch (e) {
+        alert("Lỗi kết nối với máy chủ.");
+        console.error(e);
+      } finally {
+        input.value = "";
+        input.disabled = false;
+        input.focus();
+      }
+    }
+  </script>
+</body>
+</html>

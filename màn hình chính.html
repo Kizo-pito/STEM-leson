@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>STEM Genie - Đăng nhập</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #6db3f2, #1e69de);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .logo-img {
+      width: 100px;
+      margin-bottom: 10px;
+    }
+
+    .logo-text {
+      color: white;
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 25px;
+    }
+
+    .login-container {
+      background-color: #f2f2f2;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      width: 300px;
+      text-align: center;
+    }
+
+    .login-container h2 {
+      margin: 10px 0 20px;
+      color: #79a2e2;
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: #1e69de;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-btn:hover {
+      background-color: #155ab3;
+    }
+
+    .register-link {
+      display: block;
+      margin-top: 15px;
+      color: #1e69de;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .register-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Tiện ích góc dưới bên trái */
+    .floating-widget {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      background-color: #1e69de;
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 50px;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      z-index: 999;
+      transition: background-color 0.3s ease;
+    }
+
+    .floating-widget:hover {
+      background-color: #155ab3;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Logo và tiêu đề -->
+  <img src="https://i.postimg.cc/CxxcQ6cZ/logo.png" alt="STEM Genie Logo" class="logo-img" />
+  <div class="logo-text">STEM GENIE</div>
+
+  <!-- Hộp đăng nhập -->
+  <div class="login-container">
+    <h2>Đăng nhập</h2>
+    <input type="text" id="username" class="input-field" placeholder="Tên đăng nhập" />
+    <input type="password" id="password" class="input-field" placeholder="Mật khẩu" />
+    <button class="login-btn" onclick="login()">Đăng nhập</button>
+    <a href="/dang-ky.html" class="register-link">Đăng ký tài khoản</a>
+  </div>
+
+  <!-- Tiện ích góc dưới bên trái -->
+  <div class="floating-widget" onclick="widgetClicked()">
+    ?
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    function login() {
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value.trim();
+
+      if (user === "genie" && pass === "hehe") {
+        // Chuyển hướng sau khi đăng nhập thành công
+        window.location.href = "/trang-chu.html";
+      } else {
+        alert("Sai tên đăng nhập hoặc mật khẩu!");
+      }
+    }
+
+    function widgetClicked() {
+      alert("Bạn cần giúp đỡ ư cảm ơn tôi không giúp được?");
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>STEM Lesson - Test Gemini</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    textarea { width: 100%; height: 100px; }
+    button { padding: 8px 12px; margin: 5px; }
+    #result { background: #f1f1f1; padding: 10px; margin-top: 10px; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <h2>STEM Lesson - Kết nối Gemini</h2>
+
+  <textarea id="inputText" placeholder="Nhập yêu cầu..."></textarea><br>
+  <button onclick="callAPI('outline')">Tạo dàn ý</button>
+  <button onclick="callAPI('lesson')">Tạo bài giảng</button>
+  <button onclick="callAPI('slides')">Tạo slide</button>
+  <button onclick="callAPI('summarize')">Tóm tắt</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function callAPI(endpoint) {
+      const text = document.getElementById("inputText").value;
+
+      const res = await fetch(`/api/generate/${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text })
+      });
+
+      const data = await res.json();
+      document.getElementById("result").innerText = data.result || data.error;
+    }
+  </script>
+</body>
+</html>

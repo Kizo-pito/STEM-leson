@@ -1,39 +1,217 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <title>STEM Lesson - Test Gemini</title>
+  <meta charset="UTF-8" />
+  <title>STEM Genie Chatbot</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    textarea { width: 100%; height: 100px; }
-    button { padding: 8px 12px; margin: 5px; }
-    #result { background: #f1f1f1; padding: 10px; margin-top: 10px; white-space: pre-wrap; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+    }
+    .chat-container {
+      background: white;
+      width: 100%;
+      max-width: 600px;
+      margin-top: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      height: 90%;
+    }
+    .chat-header {
+      background: #2563eb;
+      color: white;
+      padding: 16px;
+      text-align: center;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    #chatOutput {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      background: #f9fbfd;
+    }
+    .user-message {
+      text-align: right;
+      margin-bottom: 8px;
+      color: #1e40af;
+    }
+    .bot-message {
+      text-align: left;
+      margin-bottom: 8px;
+      color: #16a34a;
+    }
+    .chat-input {
+      display: flex;
+      padding: 12px;
+      border-top: 1px solid #ccc;
+      background: #fff;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 8px 12px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      outline: none;
+    }
+    .chat-input button {
+      margin-left: 8px;
+      padding: 8px 12px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .chat-input button:hover {
+      background: #1e40af;
+    }
+    .export-btn {
+      margin: 16px 0 0 0;
+      padding: 8px 16px;
+      background: #16a34a;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    .export-btn:hover {
+      background: #15803d;
+    }
   </style>
 </head>
 <body>
-  <h2>STEM Lesson - Kết nối Gemini</h2>
-
-  <textarea id="inputText" placeholder="Nhập yêu cầu..."></textarea><br>
-  <button onclick="callAPI('outline')">Tạo dàn ý</button>
-  <button onclick="callAPI('lesson')">Tạo bài giảng</button>
-  <button onclick="callAPI('slides')">Tạo slide</button>
-  <button onclick="callAPI('summarize')">Tóm tắt</button>
-
-  <div id="result"></div>
-
+  <div class="chat-container">
+    <div class="chat-header">STEM Genie Chatbot</div>
+    <div id="chatOutput"></div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Nhập câu hỏi..." onkeyup="if(event.keyCode === 13) sendMessage()" />
+      <button onclick="sendMessage()">➤</button>
+    </div>
+    <button class="export-btn" onclick="exportWord()">Tải file Word giáo án</button>
+  </div>
   <script>
-    async function callAPI(endpoint) {
-      const text = document.getElementById("inputText").value;
+    let state = "ask_topic";
+    let memory = {}; // Lưu outline, lesson
 
-      const res = await fetch(`/api/generate/${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text })
+    function formatMessage(message) {
+      // Đổi các dòng bắt đầu bằng "-" thành danh sách
+      if (message.includes('\n-')) {
+        message = message.replace(/\n- /g, '\n• ');
+      }
+      // In đậm các dòng bắt đầu bằng số hoặc dấu "*"
+      message = message.replace(/^(\d+\..*)$/gm, '<b>$1</b>');
+      // In đậm các tiêu đề (dòng toàn chữ hoa hoặc có dấu ":")
+      message = message.replace(/^([A-ZÀ-ỴA-Z ]{3,}:.*)$/gm, '<b>$1</b>');
+      // Đổi xuống dòng thành <br>
+      message = message.replace(/\n/g, '<br>');
+      return message;
+    }
+
+    function addMessage(sender, message) {
+      const chatOutput = document.getElementById("chatOutput");
+      const msg = document.createElement("div");
+      msg.className = sender === "Bạn" ? "user-message" : "bot-message";
+      msg.innerHTML = sender === "AI" ? `${sender}: ${formatMessage(message)}` : `${sender}: ${message}`;
+      chatOutput.appendChild(msg);
+      chatOutput.scrollTop = chatOutput.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const inputField = document.getElementById("userInput");
+      const userMsg = inputField.value.trim();
+      if (!userMsg) return;
+
+      addMessage("Bạn", userMsg);
+      inputField.value = "";
+
+      const payload = {
+        message: userMsg,
+        state: state,
+        ...memory
+      };
+
+      try {
+        const res = await fetch("/api/generate/chat/flow", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const contentType = res.headers.get("content-type");
+        let data;
+
+        if (contentType && contentType.includes("application/json")) {
+          data = await res.json();
+        } else {
+          const text = await res.text();
+          throw new Error("Phản hồi không hợp lệ từ server:\n" + text);
+        }
+
+        if (!res.ok) throw new Error(data.error || "Lỗi kết nối server");
+
+        addMessage("AI", data.reply || "Không có phản hồi.");
+
+        state = data.next_state || state;
+        if (data.outline) memory.outline = data.outline;
+        if (data.lesson) memory.lesson = data.lesson;
+
+      } catch (err) {
+        addMessage("AI", "❌ Lỗi: " + err.message);
+      }
+    }
+
+    async function exportWord() {
+      // Lấy toàn bộ nội dung hội thoại AI (chỉ lấy tin nhắn của AI)
+      let content = "";
+      document.querySelectorAll('.bot-message').forEach(msg => {
+        // Loại bỏ "AI: " ở đầu
+        content += msg.innerText.replace(/^AI:\s*/, '') + "\n";
       });
 
-      const data = await res.json();
-      document.getElementById("result").innerText = data.result || data.error;
+      if (!content.trim()) {
+        alert("Chưa có nội dung để xuất file!");
+        return;
+      }
+
+      const res = await fetch('/api/generate/export-word', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      });
+
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "giao_an.docx";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } else {
+        alert("Không thể xuất file Word!");
+      }
     }
+
+    window.onload = () => {
+      addMessage("AI", "👋 Chào thầy/cô! Bạn muốn dạy chủ đề nào hôm nay?");
+    };
   </script>
 </body>
 </html>

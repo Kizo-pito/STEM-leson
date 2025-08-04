@@ -35,3 +35,24 @@ def summarize_with_ai(text):
     prompt = f"Tóm tắt nội dung sau: {text}"
     response = model.generate_content(prompt)
     return response.text
+import re
+
+def parse_markdown_to_json(markdown_text: str):
+    slides = []
+    current_slide = None
+
+    lines = markdown_text.splitlines()
+    for line in lines:
+        if re.match(r"\*\*Slide \d+:.*\*\*", line):
+            if current_slide:
+                slides.append(current_slide)
+            current_slide = {
+                "title": re.sub(r"^\*\*|\*\*$", "", line).strip(),
+                "content": ""
+            }
+        elif current_slide:
+            current_slide["content"] += line + "\n"
+
+    if current_slide:
+        slides.append(current_slide)
+    return {"slides": slides}

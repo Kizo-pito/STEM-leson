@@ -1,6 +1,10 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, send_file
 from flask_jwt_extended import jwt_required
 import google.generativeai as genai
+from docx import Document
+from ultis.pdf_ultis import read_pdf_text  
+from controllers.generate_controller import generate_lesson_content, parse_markdown_to_json
+import io
 
 generate_bp = Blueprint('generate', __name__)
 
@@ -26,17 +30,17 @@ def generate_outline():
         return jsonify({"error": str(e)}), 500
 
 # --- API tạo giáo án ---
-@generate_bp.route('/lesson', methods=['POST'])
+# controllers/generate_controller.py
+# Bạn dùng Gemini API ở đây
+@generate_bp.route("/api/generate/lesson", methods=["POST"])
 def generate_lesson():
-    text = request.json.get("text")
-    if not text:
-        return jsonify({"error": "Thiếu dữ liệu"}), 400
-    try:
-        model = get_model()
-        response = model.generate_content(f"Hãy viết giáo án chi tiết cho: {text}")
-        return jsonify({"input": text, "result": response.text})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    data = request.json
+    user_input = data.get("topic", "")
+    pdf_path = "C:/Users/minhs/OneDrive/Videos/SGK KHTN 8 KNTT.pdf"
+
+    result = generate_lesson_from_pdf(pdf_path, user_input)
+    return jsonify({"result": result})
+
 
 # --- API tạo slide ---
 @generate_bp.route('/slides', methods=['POST'])
@@ -86,6 +90,11 @@ def chat_flow():
     user_message = data.get("message", "")
     state = data.get("state", "ask_topic")
 
+    # Mặc định trả về các trường rỗng nếu chưa có
+    outline = None
+    lesson = None
+    slides = None
+
     try:
         model = get_model()
 
@@ -98,7 +107,6 @@ def chat_flow():
             outline = response.text
             reply = f"Đây là dàn ý gợi ý:\n{outline}\n\nBạn thấy ổn chưa? (Nhập 'Tiếp tục' để tạo giáo án hoặc chỉnh sửa nếu cần)"
             next_state = "confirm_outline"
-            data_to_pass = {"outline": outline}
 
         elif state == "confirm_outline":
             if "tiếp tục" in user_message.lower():
@@ -107,18 +115,16 @@ def chat_flow():
                 lesson = response.text
                 reply = f"Đây là giáo án chi tiết:\n{lesson}\n\nBạn muốn tạo slide không?"
                 next_state = "confirm_lesson"
-                data_to_pass = {"lesson": lesson}
             else:
                 reply = "Bạn muốn chỉnh sửa dàn ý thế nào? Hãy nhập nội dung sửa."
                 next_state = "edit_outline"
 
         elif state == "edit_outline":
-            new_outline = user_message
-            response = model.generate_content(f"Hãy viết giáo án chi tiết từ dàn ý sau:\n{new_outline}")
+            outline = user_message
+            response = model.generate_content(f"Hãy viết giáo án chi tiết từ dàn ý sau:\n{outline}")
             lesson = response.text
             reply = f"Đây là giáo án mới dựa trên dàn ý đã sửa:\n{lesson}\n\nBạn muốn tạo slide không?"
             next_state = "confirm_lesson"
-            data_to_pass = {"lesson": lesson}
 
         elif state == "confirm_lesson":
             if "có" in user_message.lower() or "vâng" in user_message.lower():
@@ -138,8 +144,75 @@ def chat_flow():
         return jsonify({
             "reply": reply,
             "next_state": next_state,
-            **(data_to_pass if 'data_to_pass' in locals() else {})
+            "outline": outline,
+            "lesson": lesson,
+            "slides": slides
         })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+# --- API xuất file Word từ nội dung ---
+@generate_bp.route('/export-word', methods=['POST'])
+def export_word():
+    data = request.get_json()
+    content = data.get('content')
+    if not content:
+        return jsonify({'error': 'Thiếu nội dung'}), 400
+
+    doc = Document()
+
+    # Tách các đoạn theo 2 dòng xuống hàng (giả sử mỗi mục lớn cách nhau 2 dòng)
+    sections = [s.strip() for s in content.split('\n\n') if s.strip()]
+    for section in sections:
+        lines = section.split('\n')
+        # Nếu đoạn là tiêu đề lớn (in hoa, ngắn), dùng heading
+        if len(lines) == 1 and (lines[0].isupper() or len(lines[0]) < 40):
+            doc.add_heading(lines[0], level=1)
+            continue
+
+        # Nếu đoạn là bảng (dòng có nhiều dấu "|"), tạo bảng
+        if all('|' in line for line in lines):
+            rows = [l.split('|') for l in lines]
+            table = doc.add_table(rows=1, cols=len(rows[0]))
+            table.style = 'Table Grid'
+            # Header
+            for i, cell in enumerate(rows[0]):
+                table.cell(0, i).text = cell.strip()
+            # Body
+            for row in rows[1:]:
+                cells = table.add_row().cells
+                for i, cell in enumerate(row):
+                    cells[i].text = cell.strip()
+            continue
+
+        # Nếu là danh sách (bắt đầu bằng -, *, •, số), tạo bullet/numbered list
+        if all(line.strip().startswith(("-", "*", "•", "1.", "2.", "3.", "4.", "5.")) for line in lines):
+            for line in lines:
+                doc.add_paragraph(line.strip(), style='List Bullet')
+            continue
+
+        # Nếu là mục lớn (bắt đầu bằng số/chữ cái và dấu chấm), in đậm
+        if lines[0][:2].replace('.', '').isnumeric() or lines[0][:2].isalpha():
+            p = doc.add_paragraph()
+            run = p.add_run(lines[0])
+            run.bold = True
+            for line in lines[1:]:
+                doc.add_paragraph(line)
+            continue
+
+        # Mặc định: đoạn văn thường
+        for line in lines:
+            doc.add_paragraph(line)
+
+    file_stream = io.BytesIO()
+    doc.save(file_stream)
+    file_stream.seek(0)
+
+    return send_file(
+        file_stream,
+        as_attachment=True,
+        download_name="giao_an.docx",
+        mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )

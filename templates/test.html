@@ -4,10 +4,14 @@
   <meta charset="UTF-8">
   <title>STEM Genie Chat</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
   <style>
     #chatOutput {
-      height: 500px;
+      flex: 1;
+      max-height: 400px;
       overflow-y: auto;
+      scroll-behavior: smooth;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -16,6 +20,7 @@
       border: 1px solid #e5e7eb;
       border-radius: 0.5rem;
     }
+
     .user-message {
       align-self: flex-end;
       background-color: #dbeafe;
@@ -24,6 +29,7 @@
       max-width: 80%;
       word-wrap: break-word;
     }
+
     .bot-message {
       align-self: flex-start;
       background-color: #ffffff;
@@ -36,7 +42,6 @@
   </style>
 </head>
 <body class="bg-gray-100 font-sans">
-
   <div class="flex min-h-screen">
     <!-- Sidebar -->
     <aside class="w-20 bg-gradient-to-b from-blue-400 to-blue-600 text-white flex flex-col items-center py-6 space-y-6">
@@ -67,6 +72,7 @@
         <div class="w-64 bg-white rounded-xl p-6 shadow-md mr-6">
           <h2 class="text-xl font-bold text-blue-700 mb-4">Bộ lọc</h2>
           <div class="space-y-4">
+            <!-- Bộ lọc lớp -->
             <div>
               <label class="block text-gray-700 mb-1">Khối lớp</label>
               <select class="w-full border border-gray-300 rounded-md px-3 py-2">
@@ -85,6 +91,7 @@
                 <option>Lớp 12</option>
               </select>
             </div>
+            <!-- Bộ lọc môn học -->
             <div>
               <label class="block text-gray-700 mb-1">Môn học</label>
               <select class="w-full border border-gray-300 rounded-md px-3 py-2">
@@ -97,6 +104,7 @@
                 <option>Địa</option>
               </select>
             </div>
+            <!-- Bộ lọc bài học -->
             <div>
               <label class="block text-gray-700 mb-1">Bài học</label>
               <select class="w-full border border-gray-300 rounded-md px-3 py-2">
@@ -117,9 +125,7 @@
         <!-- Chat Area -->
         <div class="flex-1 bg-white rounded-xl shadow-md p-6 flex flex-col">
           <h1 class="text-2xl font-bold text-center mb-4 text-blue-700">STEM Genie Chatbot</h1>
-
           <div id="chatOutput" class="flex-1 mb-4"></div>
-
           <div class="relative">
             <div class="flex items-center border border-blue-400 rounded-xl px-4 py-2 shadow-md">
               <span class="mr-2 text-blue-600">✦</span>
@@ -139,43 +145,86 @@
   </div>
 
   <script>
-    async function sendMessage() {
-      const input = document.getElementById("userInput");
-      const chatOutput = document.getElementById("chatOutput");
-      const userText = input.value.trim();
-      if (!userText) return;
+    let state = "ask_topic";
+    let memory = {}; // Lưu outline, lesson
 
-      const userDiv = document.createElement("div");
-      userDiv.className = "user-message";
-      userDiv.innerText = "🧑 Bạn: " + userText;
-      chatOutput.appendChild(userDiv);
-      chatOutput.scrollTop = chatOutput.scrollHeight;
-
-      input.value = "Đang xử lý...";
-      input.disabled = true;
-
-      try {
-        const res = await fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: userText })
-        });
-        const data = await res.json();
-
-        const botDiv = document.createElement("div");
-        botDiv.className = "bot-message";
-        botDiv.innerText = "🤖 Genie: " + data.reply;
-        chatOutput.appendChild(botDiv);
-        chatOutput.scrollTop = chatOutput.scrollHeight;
-      } catch (e) {
-        alert("Lỗi kết nối với máy chủ.");
-        console.error(e);
-      } finally {
-        input.value = "";
-        input.disabled = false;
-        input.focus();
+    function formatMessage(message) {
+      if (message.includes('\n-')) {
+        message = message.replace(/\n- /g, '\n• ');
       }
+      message = message.replace(/^(\d+\..*)$/gm, '<b>$1</b>');
+      message = message.replace(/^([A-ZÀ-ỴA-Z ]{3,}:.*)$/gm, '<b>$1</b>');
+      message = message.replace(/\n/g, '<br>');
+      return message;
     }
+
+    function addMessage(sender, message, isHTML = false) {
+  const chatOutput = document.getElementById("chatOutput");
+  const msg = document.createElement("div");
+  msg.className = sender === "Bạn" ? "user-message" : "bot-message";
+  
+  if (isHTML) {
+    msg.innerHTML = sender === "AI" ? `${sender}: ${message}` : `${sender}: ${message}`;
+  } else {
+    // Giữ formatMessage chỉ áp dụng với tin nhắn dạng text
+    const formatted = sender === "AI" ? formatMessage(message) : message;
+    msg.innerHTML = `${sender}: ${formatted}`;
+  }
+
+  chatOutput.appendChild(msg);
+  chatOutput.scrollTop = chatOutput.scrollHeight;
+}
+
+async function sendMessage() {
+  const inputField = document.getElementById("userInput");
+  const userMsg = inputField.value.trim();
+  if (!userMsg) return;
+
+  addMessage("Bạn", userMsg);
+  inputField.value = "";
+
+  const payload = {
+    message: userMsg,
+    state: state,
+    ...memory
+  };
+
+  try {
+    const res = await fetch("/api/generate/chat/flow", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const contentType = res.headers.get("content-type");
+    let data;
+
+    if (contentType && contentType.includes("application/json")) {
+      data = await res.json();
+    } else {
+      const text = await res.text();
+      throw new Error("Phản hồi không hợp lệ từ server:\n" + text);
+    }
+
+    if (!res.ok) throw new Error(data.error || "Lỗi kết nối server");
+
+    // Chuyển markdown trả về thành HTML rồi render
+    const htmlReply = marked.parse(data.reply || "Không có phản hồi.");
+    addMessage("AI", htmlReply, true);
+
+    state = data.next_state || state;
+    if (data.outline) memory.outline = data.outline;
+    if (data.lesson) memory.lesson = data.lesson;
+
+  } catch (err) {
+    addMessage("AI", "❌ Lỗi: " + err.message);
+  }
+}
+
+
+    window.onload = () => {
+      addMessage("AI", "👋 Chào thầy/cô! Bạn muốn dạy chủ đề nào hôm nay?");
+    };
   </script>
 </body>
 </html>
